@@ -13,7 +13,6 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
-        /* --- GRAVITONX ENGINE CSS --- */
         :root {
             --primary: #5D5FEF; 
             --secondary: #bd00ff; 
@@ -25,31 +24,69 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* 2. SMOOTH SCROLL */
+        html {
+            scroll-behavior: smooth;
+        }
+
         /* Custom Cursor (Desktop Only) */
         @media (hover: hover) and (pointer: fine) {
             * { cursor: none !important; }
         }
 
+        /* PAGE FADE IN */
         body { 
             background-color: var(--bg); 
             color: #fff; 
             font-family: 'Outfit', sans-serif; 
             overflow-x: hidden; 
             min-height: 100vh;
+            animation: fadeIn 1.2s ease forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* SCROLL PROGRESS BAR */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            z-index: 999999;
+            box-shadow: 0 0 10px var(--accent);
         }
 
         /* UTILITIES */
-        .section-header { text-align: center; margin-bottom: 60px; margin-top: 100px; }
-        .section-header h2 { font-size: 2.5rem; color: white; font-weight: 700; }
+        .section-header { text-align: center; margin-bottom: 60px; margin-top: 100px; position: relative; }
         
-        /* CINEMATIC GRAIN */
+        .section-header::before {
+            content: ""; display: block; width: 80px; height: 3px; margin: 0 auto 15px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 5px; box-shadow: 0 0 10px var(--primary);
+        }
+
+        .section-header h2 { 
+            font-size: 2.5rem; font-weight: 700; 
+            background: linear-gradient(90deg, #fff, var(--accent), #fff);
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+        @keyframes shimmer { to { background-position: 200% center; } }
+
+        /* PRELOADER */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        .loader-bar { width: 200px; height: 2px; background: #333; margin-top: 20px; position: relative; overflow: hidden; }
+        .loader-progress { position: absolute; top: 0; left: 0; width: 0%; height: 100%; background: var(--accent); animation: load 2s ease-in-out forwards; }
+        @keyframes load { 0% { width: 0%; } 100% { width: 100%; } }
+
+        /* NOISE & BACKGROUND */
         .noise-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 9000; opacity: 0.04;
             background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
-
-        /* NEURAL CANVAS */
         #neural-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, #0a0a0f 0%, #000 100%); }
 
         /* CUSTOM CURSOR */
@@ -63,7 +100,7 @@
             position: fixed; top: 0; left: 0; border-radius: 50%; 
             z-index: 2147483646; pointer-events: none; 
             margin-left: -20px; margin-top: -20px;
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            transition: width 0.3s, height 0.3s, background-color 0.3s;
         }
 
         /* NAVIGATION */
@@ -71,32 +108,27 @@
             display: flex; justify-content: space-between; align-items: center; 
             padding: 20px 8%; position: fixed; width: 100%; top: 0; z-index: 100; 
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            background: rgba(5,5,7,0.7); 
-            border-bottom: 1px solid var(--border); 
+            background: rgba(5,5,7,0.7); border-bottom: 1px solid var(--border); 
+            transition: background 0.3s ease, backdrop-filter 0.3s ease;
         }
         .logo { font-size: 1.4rem; font-weight: 800; color: white; text-decoration: none; letter-spacing: 1px; }
 
-        /* INTERACTIVE ICONS */
         .social-group { display: flex; gap: 25px; align-items: center; }
         .social-icon {
-            color: #ccc; font-size: 1.5rem; 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            position: relative;
+            color: #ccc; font-size: 1.5rem; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative;
         }
-        .social-icon:hover {
-            color: var(--accent);
-            transform: scale(1.3) translateY(-2px); 
-            text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); 
-        }
+        .social-icon:hover { color: var(--accent); transform: scale(1.3) translateY(-2px); text-shadow: 0 0 15px rgba(0, 240, 255, 0.6); }
 
-        /* BUTTONS */
+        /* BUTTON PRESS FEEDBACK */
         .btn-glow { 
             padding: 14px 35px; background: var(--primary); color: white; 
             border-radius: 50px; font-weight: 700; text-decoration: none; 
             box-shadow: 0 0 30px rgba(93,95,239,0.3); transition: 0.3s; 
             display: inline-flex; align-items: center; gap: 10px; border: none; font-size: 1rem;
+            position: relative; overflow: hidden;
         }
         .btn-glow:hover { transform: scale(1.05); box-shadow: 0 0 60px var(--primary); color: white; }
+        .btn-glow:active { transform: scale(0.96); }
 
         /* HERO SECTION */
         .hero-container {
@@ -105,61 +137,78 @@
             padding: 120px 5% 50px 5%;
         }
 
-        /* PHOTO STYLING */
+        /* 1. GPU ACCELERATION & HERO IMAGE */
         .profile-img {
             width: 190px; height: 190px; border-radius: 50%;
             border: 2px solid var(--border); padding: 6px;
             background: var(--glass); object-fit: cover;
             box-shadow: 0 0 50px rgba(93, 95, 239, 0.3);
             margin-bottom: 35px; transition: 0.4s;
+            animation: float 6s ease-in-out infinite;
+            will-change: transform; /* GPU Optimization */
         }
-        .profile-img:hover { 
-            transform: scale(1.05); border-color: var(--accent); 
-            box-shadow: 0 0 60px rgba(0, 240, 255, 0.4);
-        }
+        .profile-img:hover { transform: scale(1.05); border-color: var(--accent); box-shadow: 0 0 60px rgba(0, 240, 255, 0.4); }
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 
         h1 {
             font-size: 4rem; line-height: 1.1; font-weight: 900; margin-bottom: 15px;
             background: linear-gradient(135deg, #fff 30%, #5D5FEF 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            position: relative; z-index: 1;
         }
+
+        h1::after {
+            content: ""; position: absolute; inset: -30px;
+            background: radial-gradient(circle, rgba(93,95,239,0.25), transparent 70%);
+            z-index: -1; filter: blur(45px);
+        }
+
+        /* CYBERPUNK CURSOR */
+        .typed-cursor {
+            display: inline-block; width: 8px; background: transparent;
+            border-left: 2px solid var(--accent); border-right: 2px solid var(--accent);
+            margin-left: 5px; animation: blink 0.9s infinite step-end;
+            vertical-align: middle; height: 1.2em;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
         .typing-container {
             font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: var(--accent);
             margin-bottom: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
         }
+        .bio-text { color: #aaa; max-width: 650px; line-height: 1.7; font-size: 1.15rem; margin-bottom: 40px; }
 
-        .bio-text {
-            color: #aaa; max-width: 650px; line-height: 1.7; font-size: 1.15rem; margin-bottom: 40px;
-        }
+        /* CARDS GRID */
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
 
-        /* CARDS GRID (Improved for Mobile) */
-        .grid-3 { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 30px; width: 100%; max-width: 1200px; margin: 0 auto; padding-bottom: 50px; 
-        }
-
+        /* 1. GPU ACCELERATION & CARD STYLING */
         .glass-card { 
             background: var(--glass); border: 1px solid var(--border); 
             padding: 40px; border-radius: 20px; transition: 0.4s; 
             cursor: pointer; display: flex; flex-direction: column; 
             position: relative; overflow: hidden; text-decoration: none;
-        }
-        .glass-card:hover { 
-            transform: translateY(-8px) scale(1.01); 
-            border-color: rgba(93, 95, 239, 0.5); 
-            background: rgba(93,95,239,0.08); 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-        .glass-card h3 { font-size: 1.6rem; margin-bottom: 12px; color: white; font-weight: 700; }
-        .glass-card p { color: #aaa; line-height: 1.6; margin-bottom: 25px; font-size: 1rem; }
-        .glass-card .meta { 
-            color: var(--accent); font-size: 0.85rem; font-weight: bold; 
-            letter-spacing: 1.5px; margin-top: auto; text-transform: uppercase;
+            backdrop-filter: blur(18px) saturate(160%);
+            transform-style: preserve-3d; transform: perspective(1000px);
+            will-change: transform; /* GPU Optimization */
         }
 
-        /* HOLOGRAPHIC EFFECT */
+        /* 4. TILT SHADOW & 6. GLOW EFFECT */
+        .glass-card:hover { 
+            border-color: rgba(93, 95, 239, 0.5); 
+            transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-5px);
+            box-shadow: 0 15px 50px rgba(93,95,239,0.25);
+        }
+        
+        .glass-card::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08), transparent 70%);
+            transform: translateX(-100%); transition: 0.6s; pointer-events: none;
+        }
+        .glass-card:hover::after { transform: translateX(100%); }
+
+        .glass-card h3 { font-size: 1.6rem; margin-bottom: 12px; color: white; font-weight: 700; transform: translateZ(20px); }
+        .glass-card p { color: #aaa; line-height: 1.6; margin-bottom: 25px; font-size: 1rem; transform: translateZ(10px); }
+        
         .holo-card::before {
             content: ""; position: absolute; height: 100%; width: 100%; left: 0; top: 0;
             background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.07), transparent 40%);
@@ -167,69 +216,34 @@
         }
         .holo-card:hover::before { opacity: 1; }
 
-        /* FOOTER */
-        footer {
-            text-align: center; padding: 80px 0; border-top: 1px solid var(--border);
-            background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
-        }
+        footer { text-align: center; padding: 80px 0; border-top: 1px solid var(--border); background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0)); }
 
-        /* --- MOBILE OPTIMIZATION ENGINE --- */
+        /* MOBILE OPTIMIZATION */
         @media (max-width: 900px) {
-            /* 1. Disable Custom Cursor (Important for Touch) */
             .cursor-dot, .cursor-outline { display: none !important; }
             * { cursor: auto !important; }
-
-            /* 2. Responsive Typography */
             h1 { font-size: 2.5rem; word-wrap: break-word; }
             .bio-text { font-size: 1rem; padding: 0 10px; }
             .section-header h2 { font-size: 2rem; }
-
-            /* 3. Adjust Profile Image Size */
             .profile-img { width: 150px; height: 150px; }
-
-            /* 4. Navigation Padding */
             nav { padding: 15px 5%; }
-            .logo { font-size: 1.2rem; }
-            .social-icon { font-size: 1.3rem; }
-
-            /* 5. Grid Fixes for Small Screens */
-            .grid-3 { 
-                grid-template-columns: 1fr; /* Force 1 column */
-                padding: 0 20px 50px 20px; /* Add side padding */
-                gap: 20px;
-            }
-            .glass-card { padding: 30px 25px; } /* Slightly less padding inside cards */
-            
-            /* 6. Static Glow for Mobile (Since no hover) */
-            .glass-card { border-color: rgba(255, 255, 255, 0.15); }
-            * --- CYBERPUNK DOUBLE CURSOR --- */
-            .typed-cursor {
-                display: inline-block;
-                width: 8px;  /* Width of the gap between lines */
-                background: transparent;
-                border-left: 3px solid var(--accent);  /* Line 1 */
-                border-right: 3px solid var(--accent); /* Line 2 */
-                margin-left: 5px;
-                animation: blink 0.9s infinite step-end;
-                vertical-align: middle;
-            }
-            
-            @keyframes blink {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0; }
-            }
+            .grid-3 { grid-template-columns: 1fr; padding: 0 20px 50px 20px; gap: 20px; }
+            .glass-card { padding: 30px 25px; border-color: rgba(255, 255, 255, 0.15); }
         }
     </style>
 </head>
 <body>
+    <div id="scroll-progress"></div>
 
-    <!-- VISUAL FX -->
+    <div id="preloader">
+        <div style="font-family: 'JetBrains Mono'; color: var(--accent); margin-bottom: 10px;">INITIALIZING SYSTEM...</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+
     <div class="noise-overlay"></div>
-    <div class="cursor-dot"></div> 
-    <div class="cursor-outline"></div> 
+    <div class="cursor-dot"></div> <div class="cursor-outline"></div> 
     <canvas id="neural-canvas"></canvas>
 
-    <!-- NAVIGATION -->
     <nav>
         <a href="#" class="logo">Ratul</a>
         <div class="social-group">
@@ -238,80 +252,53 @@
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
     <section class="hero-container">
         <div data-aos="zoom-in">
-            <!-- Ensure 'ratul.jpeg' is in your folder -->
             <img src="ratul.jpeg" alt="Mustafij Ratul" class="profile-img">
         </div>
-        
         <div data-aos="fade-up">
             <h1>Md. Mustafijur<br>Rahman Ratul</h1>
-            
-            <div class="typing-container">
-                <span id="typewriter"></span>
-            </div>
-            
-            <p class="bio-text">
-                Undergraduate Student of <b>Civil Engineering</b> at RUET.<br>
-                Windows App Development Enthusiast | ML Research Enthusiast.<br>
-            </p>
-            
+            <div class="typing-container"><span id="typewriter"></span></div>
+            <p class="bio-text"><b>Civil Engineering</b> Student @ RUET.<br>Software Development & ML Research Enthusiast.</p>
             <div style="display:flex; justify-content:center; gap:20px;">
                 <a href="mailto:ratul12208108@gmail.com" class="btn-glow">Contact Me <i class="fa-solid fa-envelope"></i></a>
             </div>
         </div>
     </section>
 
-    <!-- EDUCATION SECTION -->
     <div class="section-header" data-aos="fade-up"><h2>Education</h2></div>
     <div class="grid-3">
-        <!-- RUET -->
-        <a href="https://ruet.ac.bd/" target="_blank" class="glass-card holo-card" data-aos="fade-up">
-            <i class="fa-solid fa-graduation-cap" style="color: var(--primary); font-size: 2.2rem; margin-bottom: 20px;"></i>
+        <a href="https://ruet.ac.bd/" target="_blank" class="glass-card holo-card" data-tilt data-tilt-glare data-tilt-max-glare="0.5" data-aos="fade-up">
+            <i class="fa-solid fa-graduation-cap" style="color: var(--primary); font-size: 2.2rem; margin-bottom: 20px; transform:translateZ(30px);"></i>
             <h3>RUET</h3>
             <p>B.Sc. in Civil Engineering.<br>Current Student.</p>
-            <div class="meta">OFFICIAL WEBSITE <i class="fa-solid fa-arrow-right"></i></div>
         </a>
-
-        <!-- NDC -->
-        <a href="https://ndc.edu.bd/" target="_blank" class="glass-card holo-card" data-aos="fade-up" data-aos-delay="100">
-            <i class="fa-solid fa-building-columns" style="color: var(--accent); font-size: 2.2rem; margin-bottom: 20px;"></i>
+        <a href="https://ndc.edu.bd/" target="_blank" class="glass-card holo-card" data-tilt data-tilt-glare data-tilt-max-glare="0.5" data-aos="fade-up" data-aos-delay="100">
+            <i class="fa-solid fa-building-columns" style="color: var(--accent); font-size: 2.2rem; margin-bottom: 20px; transform:translateZ(30px);"></i>
             <h3>Notre Dame College</h3>
             <p>Higher Secondary Certificate (HSC).<br>Science Group.</p>
-            <div class="meta">OFFICIAL WEBSITE <i class="fa-solid fa-arrow-right"></i></div>
         </a>
     </div>
 
-    <!-- PROJECTS SECTION -->
     <div class="section-header" id="projects" data-aos="fade-up"><h2>Engineering & Code</h2></div>
     <div class="grid-3">
-        <!-- PROJECT 1: FOCUSGUARD -->
-        <a href="https://github.com/MustafijRatul/FocusGuardRepo" target="_blank" class="glass-card holo-card" data-aos="fade-up">
-            <i class="fa-solid fa-shield-cat" style="color: #00D26A; font-size: 2.2rem; margin-bottom: 20px;"></i>
+        <a href="https://github.com/MustafijRatul/FocusGuardRepo" target="_blank" class="glass-card holo-card" data-tilt data-aos="fade-up">
+            <i class="fa-solid fa-shield-cat" style="color: #00D26A; font-size: 2.2rem; margin-bottom: 20px; transform:translateZ(30px);"></i>
             <h3>FocusGuard Pro</h3>
-            <p>High-performance distraction blocker built with Python & PySide6. Engineered for deep work.</p>
-            <div class="meta">VIEW REPOSITORY <i class="fa-brands fa-github"></i></div>
+            <p>High-performance distraction blocker built with Python & PySide6.</p>
         </a>
-
-        <!-- PROJECT 2: TENSORCRETE -->
-        <a href="https://github.com/MustafijRatul/tensorcrete" target="_blank" class="glass-card holo-card" data-aos="fade-up" data-aos-delay="100">
-            <i class="fa-solid fa-brain" style="color: #FF9F43; font-size: 2.2rem; margin-bottom: 20px;"></i>
+        <a href="https://github.com/MustafijRatul/tensorcrete" target="_blank" class="glass-card holo-card" data-tilt data-aos="fade-up" data-aos-delay="100">
+            <i class="fa-solid fa-brain" style="color: #FF9F43; font-size: 2.2rem; margin-bottom: 20px; transform:translateZ(30px);"></i>
             <h3>TensorCrete</h3>
-            <p>Integrating Machine Learning with Construction Materials. Intelligent analysis for concrete structures.</p>
-            <div class="meta">VIEW REPOSITORY <i class="fa-brands fa-github"></i></div>
+            <p>Integrating Machine Learning with Construction Materials.</p>
         </a>
-
-        <!-- PROJECT 3: PAPERGLASS -->
-        <a href="https://github.com/MustafijRatul/PaperGlassRepo" target="_blank" class="glass-card holo-card" data-aos="fade-up" data-aos-delay="200">
-            <i class="fa-solid fa-file-pdf" style="color: #FF4757; font-size: 2.2rem; margin-bottom: 20px;"></i>
+        <a href="https://github.com/MustafijRatul/PaperGlassRepo" target="_blank" class="glass-card holo-card" data-tilt data-aos="fade-up" data-aos-delay="200">
+            <i class="fa-solid fa-file-pdf" style="color: #FF4757; font-size: 2.2rem; margin-bottom: 20px; transform:translateZ(30px);"></i>
             <h3>PaperGlass Pro</h3>
-            <p>Advanced PDF flattening and viewing utility designed with a fluid glass-morphic interface.</p>
-            <div class="meta">VIEW REPOSITORY <i class="fa-brands fa-github"></i></div>
+            <p>Advanced PDF flattening and viewing utility.</p>
         </a>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <div class="social-group" style="justify-content: center; margin-bottom: 30px;">
             <a href="https://www.facebook.com/Ratul.mustafij" target="_blank" class="social-icon" title="Facebook" style="font-size: 1.8rem;"><i class="fa-brands fa-facebook"></i></a>
@@ -321,75 +308,100 @@
         <p style="color: #666; font-size: 0.9rem;">&copy; 2025 Md. Mustafijur Rahman Ratul.</p>
     </footer>
 
-    <!-- SCRIPTS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             
-            // 1. INIT ANIMATIONS
+            // PRELOADER
+            setTimeout(() => {
+                const preloader = document.getElementById('preloader');
+                preloader.style.opacity = '0';
+                setTimeout(() => preloader.style.display = 'none', 800);
+            }, 2000);
+
+            // ANIMATION INIT
             AOS.init({ duration: 800, once: true, offset: 50 });
 
-            // 2. TYPED.JS
+            // TYPED.JS
             new Typed('#typewriter', {
-                strings: [
-                    'Civil Engineering Student.', 
-                    'Python Developer.', 
-                    'Hobbyist Painter.', 
-                    'Tech Enthusiast.',
-                    'Photography Lover'
-                ],
-                typeSpeed: 40, backSpeed: 20, loop: true, backDelay: 2000, showCursor: true,cursorChar: ' '   /* <--- ADD THIS (We use space because CSS handles the shape) */
+                strings: ['Civil Engineering Student.', 'Python Developer.', 'Hobbyist Painter.', 'Tech Enthusiast.', 'Photography Lover'],
+                typeSpeed: 40, backSpeed: 20, loop: true, backDelay: 2000,
+                showCursor: true, cursorChar: ' ' 
             });
 
-            // 3. MOUSE CURSOR (Desktop Only)
+            // SCROLL PROGRESS
+            window.addEventListener("scroll", () => {
+                const h = document.documentElement;
+                const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+                document.getElementById("scroll-progress").style.width = scrolled + "%";
+            });
+
+            // 3. STRONG NAVBAR BLUR
+            window.addEventListener("scroll", () => {
+                const nav = document.querySelector("nav");
+                if (window.scrollY > 50) {
+                    nav.style.background = "rgba(5,5,7,0.85)";
+                    nav.style.backdropFilter = "blur(20px)";
+                } else {
+                    nav.style.background = "rgba(5,5,7,0.7)";
+                    nav.style.backdropFilter = "blur(15px)";
+                }
+            });
+
+            // MOUSE CURSOR
             const dot = document.querySelector('.cursor-dot');
             const outline = document.querySelector('.cursor-outline');
+            const glassCards = document.querySelectorAll(".glass-card");
 
             if (window.matchMedia("(pointer: fine)").matches) {
                 window.addEventListener("mousemove", (e) => {
-                    const x = e.clientX;
-                    const y = e.clientY;
+                    const x = e.clientX; const y = e.clientY;
                     dot.style.transform = `translate(${x}px, ${y}px)`;
                     outline.animate({ transform: `translate(${x}px, ${y}px)` }, { duration: 500, fill: "forwards" });
                 });
+
+                // Magnetic expansion on hover
+                glassCards.forEach(card => {
+                    card.addEventListener("mouseenter", () => {
+                        outline.style.width = "70px"; outline.style.height = "70px";
+                        outline.style.borderColor = "var(--accent)";
+                    });
+                    card.addEventListener("mouseleave", () => {
+                        outline.style.width = "40px"; outline.style.height = "40px";
+                        outline.style.borderColor = "rgba(255,255,255,0.5)";
+                    });
+                });
             }
 
-            // 4. NEURAL NETWORK BACKGROUND (Mobile Optimized)
+            // NEURAL BACKGROUND
             const canvas = document.getElementById('neural-canvas');
             const ctx = canvas.getContext('2d');
             let width, height, particles = [];
             let mouse = { x: null, y: null, radius: 150 };
-
-            // Check if user is on mobile
             const isMobile = window.innerWidth < 900;
-            const particleCount = isMobile ? 35 : 100; // Reduce particles on mobile for speed
+            const particleCount = isMobile ? 35 : 100;
 
             window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-            window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
-
             const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; };
             
             class Particle {
                 constructor() {
-                    this.x = Math.random() * width;
-                    this.y = Math.random() * height;
-                    this.vx = (Math.random() - 0.5) * 0.5;
-                    this.vy = (Math.random() - 0.5) * 0.5;
-                    this.size = Math.random() * 1.5;
-                    this.color = Math.random() > 0.5 ? "#5D5FEF" : "#00F0FF";
+                    this.x = Math.random() * width; this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+                    this.size = Math.random() * 1.5; this.color = Math.random() > 0.5 ? "#5D5FEF" : "#00F0FF";
                 }
                 update() {
                     this.x += this.vx; this.y += this.vy;
                     if (this.x < 0 || this.x > width) this.vx *= -1;
                     if (this.y < 0 || this.y > height) this.vy *= -1;
-                    
-                    if (mouse.x !== null) {
-                        const dx = mouse.x - this.x; const dy = mouse.y - this.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (mouse.x != null) {
+                        let dx = mouse.x - this.x; let dy = mouse.y - this.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
                         if (dist < mouse.radius) {
-                            const force = (mouse.radius - dist) / mouse.radius;
+                            let force = (mouse.radius - dist) / mouse.radius;
                             this.x -= (dx/dist) * force * 0.5; this.y -= (dy/dist) * force * 0.5;
                         }
                     }
@@ -400,42 +412,36 @@
                 }
             }
 
-            const initParticles = () => {
-                resize(); particles = [];
-                for (let i = 0; i < particleCount; i++) particles.push(new Particle());
-            };
-
+            const initParticles = () => { resize(); particles = []; for (let i=0; i<particleCount; i++) particles.push(new Particle()); };
             const animateParticles = () => {
                 ctx.clearRect(0, 0, width, height);
-                for (let i = 0; i < particles.length; i++) {
-                    const p = particles[i]; p.update(); p.draw();
-                    
-                    // Connections
-                    if (mouse.x !== null) {
-                        const dx = p.x - mouse.x; const dy = p.y - mouse.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 150) {
-                            ctx.beginPath(); ctx.strokeStyle = `rgba(93, 95, 239, ${0.9 * (1 - dist/150)})`;
+                for (let i=0; i<particles.length; i++) {
+                    let p = particles[i]; p.update(); p.draw();
+                    if (mouse.x != null) {
+                        let dx = p.x - mouse.x; let dy = p.y - mouse.y;
+                        if (Math.sqrt(dx*dx+dy*dy) < 150) {
+                            ctx.beginPath(); ctx.strokeStyle = `rgba(93,95,239,${0.9*(1-Math.sqrt(dx*dx+dy*dy)/150)})`;
                             ctx.lineWidth = 1; ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
-                        }
-                    }
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const p2 = particles[j];
-                        const dx = p.x - p2.x; const dy = p.y - p2.y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 100) {
-                            ctx.beginPath(); ctx.strokeStyle = `rgba(93, 95, 239, ${0.3 * (1 - dist/100)})`;
-                            ctx.lineWidth = 0.5; ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                         }
                     }
                 }
                 requestAnimationFrame(animateParticles);
             };
+            window.addEventListener('resize', initParticles); initParticles(); animateParticles();
 
-            window.addEventListener('resize', initParticles);
-            initParticles(); animateParticles();
+            // 5. REDUCED PARTICLE SPEED EXPLOSION
+            let lastScroll = 0;
+            window.addEventListener("scroll", () => {
+                const speed = Math.abs(window.scrollY - lastScroll);
+                particles.forEach(p => {
+                    // Optimized speed multiplier (was 0.005)
+                    p.vx += (Math.random()-0.5) * speed * 0.0005; 
+                    p.vy += (Math.random()-0.5) * speed * 0.0005;
+                });
+                lastScroll = window.scrollY;
+            });
 
-            // 5. HOLOGRAPHIC CARDS (Mouse Only)
+            // HOLO MOUSE TRACKER
             if (!isMobile) {
                 const cards = document.querySelectorAll(".holo-card");
                 document.addEventListener("mousemove", e => {
@@ -449,6 +455,4 @@
         });
     </script>
 </body>
-
 </html>
-
