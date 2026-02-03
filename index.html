@@ -202,6 +202,22 @@
             
             /* 6. Static Glow for Mobile (Since no hover) */
             .glass-card { border-color: rgba(255, 255, 255, 0.15); }
+            * --- CYBERPUNK DOUBLE CURSOR --- */
+            .typed-cursor {
+                display: inline-block;
+                width: 8px;  /* Width of the gap between lines */
+                background: transparent;
+                border-left: 3px solid var(--accent);  /* Line 1 */
+                border-right: 3px solid var(--accent); /* Line 2 */
+                margin-left: 5px;
+                animation: blink 0.9s infinite step-end;
+                vertical-align: middle;
+            }
+            
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
         }
     </style>
 </head>
@@ -325,7 +341,7 @@
                     'Tech Enthusiast.',
                     'Photography Lover'
                 ],
-                typeSpeed: 40, backSpeed: 20, loop: true, backDelay: 2000, showCursor: false
+                typeSpeed: 40, backSpeed: 20, loop: true, backDelay: 2000, showCursor: true,cursorChar: ' '   /* <--- ADD THIS (We use space because CSS handles the shape) */
             });
 
             // 3. MOUSE CURSOR (Desktop Only)
@@ -434,4 +450,5 @@
         });
     </script>
 </body>
+
 </html>
